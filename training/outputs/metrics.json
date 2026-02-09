@@ -1,0 +1,37 @@
+{
+  "accuracy": 0.9960785750934545,
+  "precision": 0.9575070821529745,
+  "recall": 0.786046511627907,
+  "f1": 0.8633461047254151,
+  "confusion_matrix": [
+    [
+      26841,
+      15
+    ],
+    [
+      92,
+      338
+    ]
+  ],
+  "features_used": {
+    "categorical": [
+      "Type"
+    ],
+    "numeric": [
+      "Air temperature [K]",
+      "Process temperature [K]",
+      "Rotational speed [rpm]",
+      "Torque [Nm]",
+      "Tool wear [min]",
+      "TWF",
+      "HDF",
+      "PWF",
+      "OSF",
+      "RNF"
+    ],
+    "dropped": [
+      "id",
+      "Product ID"
+    ]
+  }
+}
