@@ -1,37 +1,28 @@
 {
-  "accuracy": 0.9960785750934545,
-  "precision": 0.9575070821529745,
-  "recall": 0.786046511627907,
-  "f1": 0.8633461047254151,
+  "accuracy": 0.9840637450199203,
+  "precision": 0.9809438737531636,
+  "recall": 0.9871161048689139,
+  "f1": 0.9840203106332138,
   "confusion_matrix": [
     [
-      26841,
-      15
+      13251,
+      256
     ],
     [
-      92,
-      338
+      172,
+      13178
     ]
   ],
-  "features_used": {
-    "categorical": [
-      "Type"
-    ],
-    "numeric": [
-      "Air temperature [K]",
-      "Process temperature [K]",
-      "Rotational speed [rpm]",
-      "Torque [Nm]",
-      "Tool wear [min]",
-      "TWF",
-      "HDF",
-      "PWF",
-      "OSF",
-      "RNF"
-    ],
-    "dropped": [
-      "id",
-      "Product ID"
-    ]
-  }
+  "notes": [
+    "This follows the Kaggle notebook: LabelEncoder(Type), drop failure modes, SMOTE before split (leakage).",
+    "Use the pipeline-based SMOTE-after-split approach for a realistic evaluation."
+  ],
+  "features_used": [
+    "Type",
+    "Air temperature [K]",
+    "Process temperature [K]",
+    "Rotational speed [rpm]",
+    "Torque [Nm]",
+    "Tool wear [min]"
+  ]
 }

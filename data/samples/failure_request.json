@@ -1,0 +1,12 @@
+{
+  "records": [
+    {
+      "Type": "L",
+      "Air temperature [K]": 296.9,
+      "Process temperature [K]": 307.9,
+      "Rotational speed [rpm]": 1371,
+      "Torque [Nm]": 57.1,
+      "Tool wear [min]": 204
+    }
+  ]
+}

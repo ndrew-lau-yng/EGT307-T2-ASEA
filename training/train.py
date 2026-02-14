@@ -1,16 +1,16 @@
 import json
 from pathlib import Path
+from collections import Counter
 
 import joblib
 import pandas as pd
 
 from sklearn.model_selection import train_test_split
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder
-from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 from sklearn.ensemble import RandomForestClassifier
+
+from imblearn.over_sampling import SMOTE
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -18,25 +18,16 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 TRAIN_CSV = PROJECT_ROOT / "data" / "raw" / "train.csv"
 TEST_CSV  = PROJECT_ROOT / "data" / "raw" / "test.csv"
 
-MODEL_OUT = PROJECT_ROOT / "services" / "inference-service" / "model" / "model.joblib"
+# Match your renamed folder
+MODEL_OUT   = PROJECT_ROOT / "services" / "inference_service" / "model" / "model.joblib"
 METRICS_OUT = PROJECT_ROOT / "training" / "outputs" / "metrics.json"
 SAMPLES_OUT = PROJECT_ROOT / "data" / "samples" / "sample_requests.json"
 
-
 TARGET_COL = "Machine failure"
 
+# Kaggle notebook drops
 DROP_COLS = ["id", "Product ID"]
-CAT_COLS = ["Type"]
-NUM_COLS = [
-    "Air temperature [K]",
-    "Process temperature [K]",
-    "Rotational speed [rpm]",
-    "Torque [Nm]",
-    "Tool wear [min]",
-]
-
-MODE_COLS = ["TWF", "HDF", "PWF", "OSF", "RNF"]
-NUM_COLS += MODE_COLS
+FAILURE_MODE_COLS = ["TWF", "HDF", "PWF", "OSF", "RNF"]
 
 
 def ensure_parent(p: Path) -> None:
@@ -55,55 +46,45 @@ def main():
     if TARGET_COL not in df.columns:
         raise ValueError(f"Target column '{TARGET_COL}' not found in train.csv")
 
-    y = df[TARGET_COL].astype(int)
-    X = df.drop(columns=[TARGET_COL])
-
     for c in DROP_COLS:
-        if c in X.columns:
-            X = X.drop(columns=[c])
+        if c in df.columns:
+            df.drop(columns=[c], inplace=True)
         if c in test_df.columns:
-            test_df = test_df.drop(columns=[c])
+            test_df.drop(columns=[c], inplace=True)
 
-    categorical = Pipeline(steps=[
-        ("imputer", SimpleImputer(strategy="most_frequent")),
-        ("onehot", OneHotEncoder(handle_unknown="ignore")),
-    ])
+    for c in FAILURE_MODE_COLS:
+        if c in df.columns:
+            df.drop(columns=[c], inplace=True)
+        if c in test_df.columns:
+            test_df.drop(columns=[c], inplace=True)
 
-    numeric = Pipeline(steps=[
-        ("imputer", SimpleImputer(strategy="median")),
-    ])
+    y = df.pop(TARGET_COL).astype(int)
+    X = df
 
-    preprocessor = ColumnTransformer(
-        transformers=[
-            ("cat", categorical, CAT_COLS),
-            ("num", numeric, NUM_COLS),
-        ],
-        remainder="drop",
-        verbose_feature_names_out=False,
-    )
+    if "Type" in X.columns:
+        le = LabelEncoder()
+        X["Type"] = le.fit_transform(X["Type"])
 
-    clf = RandomForestClassifier(
-        n_estimators=300,
-        random_state=42,
-        n_jobs=-1,
-        class_weight="balanced",
-    )
+        if "Type" in test_df.columns:
+            mapping = {cls: int(i) for i, cls in enumerate(le.classes_)}
+            test_df["Type"] = test_df["Type"].map(mapping).fillna(-1).astype(int)
 
-    pipe = Pipeline(steps=[
-        ("prep", preprocessor),
-        ("model", clf),
-    ])
+    print("Class distribution before SMOTE:", Counter(y))
+
+    smote = SMOTE(random_state=42)
+    X_resampled, y_resampled = smote.fit_resample(X, y)
+
+    print("Class distribution after SMOTE:", Counter(y_resampled))
 
     X_train, X_val, y_train, y_val = train_test_split(
-        X, y,
-        test_size=0.2,
-        random_state=42,
-        stratify=y
+        X_resampled, y_resampled, test_size=0.1, random_state=42
     )
 
-    pipe.fit(X_train, y_train)
+    # RandomForest only
+    model = RandomForestClassifier(random_state=42, n_jobs=-1)
+    model.fit(X_train, y_train)
 
-    y_pred = pipe.predict(X_val)
+    y_pred = model.predict(X_val)
 
     metrics = {
         "accuracy": float(accuracy_score(y_val, y_pred)),
@@ -111,27 +92,28 @@ def main():
         "recall": float(recall_score(y_val, y_pred, zero_division=0)),
         "f1": float(f1_score(y_val, y_pred, zero_division=0)),
         "confusion_matrix": confusion_matrix(y_val, y_pred).tolist(),
-        "features_used": {
-            "categorical": CAT_COLS,
-            "numeric": NUM_COLS,
-            "dropped": DROP_COLS,
-        }
+        "notes": [
+            "This follows the Kaggle notebook: LabelEncoder(Type), drop failure modes, SMOTE before split (leakage).",
+            "Use the pipeline-based SMOTE-after-split approach for a realistic evaluation.",
+        ],
+        "features_used": list(X.columns),
     }
 
     ensure_parent(MODEL_OUT)
     ensure_parent(METRICS_OUT)
     ensure_parent(SAMPLES_OUT)
 
-    joblib.dump(pipe, MODEL_OUT)
+    joblib.dump(model, MODEL_OUT)
     METRICS_OUT.write_text(json.dumps(metrics, indent=2), encoding="utf-8")
 
-    sample_cols = CAT_COLS + NUM_COLS
+    # Save demo samples in the format for FastAPI
+    sample_cols = list(X.columns)
     missing = [c for c in sample_cols if c not in test_df.columns]
     if missing:
         raise ValueError(f"test.csv missing columns expected by model: {missing}")
 
     samples = test_df[sample_cols].sample(n=5, random_state=42).to_dict(orient="records")
-    SAMPLES_OUT.write_text(json.dumps(samples, indent=2), encoding="utf-8")
+    SAMPLES_OUT.write_text(json.dumps({"records": samples}, indent=2), encoding="utf-8")
 
     print("Saved model:", MODEL_OUT)
     print("Saved metrics:", METRICS_OUT)

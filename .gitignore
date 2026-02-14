@@ -1,3 +1,8 @@
 venv/
 __pycache__/
 *.pyc
+
+services/inference_service/model/
+*.joblib
+*.pkl
+*.onnx
