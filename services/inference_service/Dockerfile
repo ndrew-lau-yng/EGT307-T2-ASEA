@@ -2,7 +2,6 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# System dependencies (if any) can be installed here
 RUN pip install --no-cache-dir --upgrade pip
 
 COPY requirements.txt .

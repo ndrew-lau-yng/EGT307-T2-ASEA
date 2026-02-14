@@ -13,4 +13,4 @@ CREATE TABLE IF NOT EXISTS request_log(
     route TEXT NOT NULL,                  -- API endpoint accessed
     status_code INT NOT NULL,             -- HTTP status code of the response
     latency_ms INT NOT NULL               -- Time taken to process the request in milliseconds
-)
+);

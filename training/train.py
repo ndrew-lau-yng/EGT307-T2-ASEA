@@ -93,8 +93,7 @@ def main():
         "f1": float(f1_score(y_val, y_pred, zero_division=0)),
         "confusion_matrix": confusion_matrix(y_val, y_pred).tolist(),
         "notes": [
-            "This follows the Kaggle notebook: LabelEncoder(Type), drop failure modes, SMOTE before split (leakage).",
-            "Use the pipeline-based SMOTE-after-split approach for a realistic evaluation.",
+            "This follows the Kaggle notebook",
         ],
         "features_used": list(X.columns),
     }
