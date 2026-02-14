@@ -1,0 +1,49 @@
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: egt307-postgres
+    environment:
+      POSTGRES_DB: egtdb
+      POSTGRES_USER: egtdb
+      POSTGRES_PASSWORD: egtdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./services/database_service/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+
+  inference-service:
+    build: ./services/inference_service
+    container_name: inference-service
+    ports:
+      - "8000:8000"
+
+  api-gateway:
+    build: ./services/api_gateway_service
+    container_name: api-gateway
+    environment:
+      INFERENCE_URL: http://inference-service:8000/predict
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: egtdb
+      DB_USER: egtdb
+      DB_PASSWORD: egtdb
+    depends_on:
+      - inference-service
+      - postgres
+    ports:
+      - "8001:8001"
+
+  frontend:
+    build: ./services/frontend_service
+    container_name: frontend
+    environment:
+      GATEWAY_URL: http://api-gateway:8001/predict
+    depends_on:
+      - api-gateway
+    ports:
+      - "8501:8501"
+
+volumes:
+  postgres_data:
