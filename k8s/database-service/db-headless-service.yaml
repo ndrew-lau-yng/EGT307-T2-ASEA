@@ -1,0 +1,14 @@
+# It allows other microservices to reach individual database replicas via direct DNS entries rather than a single load-balanced IP.
+
+apiVersion: v1                     # Use v1 API version for Service
+kind: Service                      # Define kind as Service
+metadata:
+  name: postgres-headless          # Name of Service
+spec:
+  selector:
+    app: postgres                  # Select pods with label app=postgres
+  clusterIP: None                  # Make it a Headless Service
+  ports:
+  - name: postgres                 # Port Name
+    port: 5432                     # Service Port inside cluster
+    targetPort: 5432               # Pod container port

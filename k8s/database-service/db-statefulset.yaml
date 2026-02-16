@@ -1,0 +1,43 @@
+# Manages Postgres Pod; Not deployment as database is stateful
+
+apiVersion: apps/v1                             # Use apps/v1 API version for StatefulSet
+kind: StatefulSet                               # Define kind as StatefulSet
+metadata:
+  name: postgres                                # Name of StatefulSet
+spec:
+  serviceName: postgres-headless                # Match headless service name
+  replicas: 1                                   # Start with 1 replica 
+  selector:
+    matchLabels:
+      app: postgres                             # Match pod with label
+  template:
+    metadata:
+      labels:
+        app: postgres                           # Pod label (from service)
+    spec:
+      containers:
+      - name: postgres                          # Container name
+        image: postgres:16-alpine               # Official Postgres image
+        ports:
+        - containerPort: 5432                   # Postgres default port
+        envFrom: 
+        - secretRef:
+            name: db-secret                     # Inject DB credentials from Secret
+        volumeMounts: 
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data   # Persistent DB storage
+        - name: init-sql 
+          mountPath: /docker-entrypoint-initdb.d/ # Run init.sql on first start
+      volumes: 
+      - name: init-sql
+        configMap:
+          name: db-init-sql                        # Mount SQL script from ConfigMap
+
+  volumeClaimTemplates:                           # Request Storage
+  - metadata:
+      name: postgres-data                          # PVC name
+    spec:
+      accessModes: ["ReadWriteOnce"]               # Storage can be mounted by one pod
+      resources:
+        requests:
+          storage: 2Gi                             # Request 2GB storage
