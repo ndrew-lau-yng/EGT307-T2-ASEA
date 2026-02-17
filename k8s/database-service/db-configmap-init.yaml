@@ -1,11 +1,11 @@
 #  Store non-sensitive configuration files
 
-apiVersion: v1                                  # Use v1 API version for ConfigMap 
-kind: ConfigMap                                 # Define kind as ConfigMap
+apiVersion: v1                            
+kind: ConfigMap                                
 metadata:
-  name: db-init-sql                             # Name of ConfigMap
+  name: db-init-sql                            
 data:
-  init.sql: |                                   # Runs on first DB start
+  init.sql: |                                  
     CREATE TABLE IF NOT EXISTS predictions (
       id SERIAL PRIMARY KEY,
       created_at TIMESTAMP DEFAULT NOW(),

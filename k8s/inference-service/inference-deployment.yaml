@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inference-deployment
+  labels:
+    app: inference
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: inference
+  template:
+    metadata:
+      labels:
+        app: inference
+    spec:
+      containers:
+        - name: inference
+          image: anonymooseuser29/inference-service:v1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          env:
+            # add DB or other environment variables here if needed

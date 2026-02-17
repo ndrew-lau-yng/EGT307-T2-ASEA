@@ -3,37 +3,38 @@
 apiVersion: apps/v1                             # Use apps/v1 API version for StatefulSet
 kind: StatefulSet                               # Define kind as StatefulSet
 metadata:
-  name: postgres                                # Name of StatefulSet
+  name: postgres                            
 spec:
-  serviceName: postgres-headless                # Match headless service name
-  replicas: 1                                   # Start with 1 replica 
+  serviceName: postgres-headless           
+  replicas: 1                                 
   selector:
     matchLabels:
-      app: postgres                             # Match pod with label
+      app: postgres                           
   template:
     metadata:
       labels:
-        app: postgres                           # Pod label (from service)
+        app: postgres                        
     spec:
       containers:
-      - name: postgres                          # Container name
+      - name: postgres                         
         image: postgres:16-alpine               # Official Postgres image
         ports:
-        - containerPort: 5432                   # Postgres default port
+        - containerPort: 5432                   
         envFrom: 
         - secretRef:
             name: db-secret                     # Inject DB credentials from Secret
-        volumeMounts: 
+        volumeMounts:
         - name: postgres-data
-          mountPath: /var/lib/postgresql/data   # Persistent DB storage
-        - name: init-sql 
-          mountPath: /docker-entrypoint-initdb.d/ # Run init.sql on first start
+          mountPath: /var/lib/postgresql/data
+        - name: init-sql
+          mountPath: /docker-entrypoint-initdb.d/init.sql
+          subPath: init.sql
       volumes: 
       - name: init-sql
         configMap:
           name: db-init-sql                        # Mount SQL script from ConfigMap
 
-  volumeClaimTemplates:                           # Request Storage
+  volumeClaimTemplates:                       
   - metadata:
       name: postgres-data                          # PVC name
     spec:
