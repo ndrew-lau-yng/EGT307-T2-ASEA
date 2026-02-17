@@ -1,16 +1,14 @@
-#  Store non-sensitive configuration files
-
-apiVersion: v1                            
-kind: ConfigMap                                
+apiVersion: v1
+kind: ConfigMap
 metadata:
-  name: db-init-sql                            
+  name: db-init-sql
 data:
-  init.sql: |                                  
+  init.sql: |
     CREATE TABLE IF NOT EXISTS predictions (
       id SERIAL PRIMARY KEY,
       created_at TIMESTAMP DEFAULT NOW(),
-      input_data JSONB NOT NULL,
-      prediction_result JSONB NOT NULL
+      input_json JSONB NOT NULL,
+      prediction_json JSONB NOT NULL
     );
 
     CREATE TABLE IF NOT EXISTS request_log (
