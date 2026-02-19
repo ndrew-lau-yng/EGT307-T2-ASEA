@@ -8,6 +8,69 @@ Done by Andrew, Srishti, Elisha and Amirul.
 The project implements a predictive maintenance system for machine failure using a microservices architecture deployed on Kubernetes. The primary objective is to predict potential machine failures based on sensor data, enabling proactive maintenance and reducing downtime. The system comprises a frontend for user interaction, an API gateway for request orchestration, an inference service for machine learning predictions, and a PostgreSQL database for logging and persistence.
 
 ## Instrucions to build, run, and deploy the system (Docker & Kubernetes)
+
+1. Download our project folder and unzip it.
+
+2. Have Docker Desktop open with the engine running before continuing
+
+3. Open powershell and navigate to the project folder directory (.\EGT307-T2-ASEA)
+
+4. Start Minikube: 
+    minikube start
+
+5. Enable these addons:
+    minikube addons enable ingress
+    minikube addons enable metrics-server
+
+6. Create the namespace:
+    kubectl create namespace egt307
+
+7. Apply the yaml files:
+    kubectl apply -f .\k8s\database-service\ -n egt307
+    kubectl apply -f .\k8s\inference-service\ -n egt307
+    kubectl apply -f .\k8s\api-gateway-service\ -n egt307
+    kubectl apply -f .\k8s\frontend-service\ -n egt307
+    kubectl apply -f .\k8s\ingress\ingress.yaml -n egt307
+
+8. Wait until all pods are stable and running (status=running & ready=1/1 etc):
+    kubectl get pods -n egt307
+
+9. Start the ingress access (*Use the first link address only*):
+    minikube service ingress-nginx-controller -n ingress-nginx --url
+    Something like this should output:
+        http://127.0.0.1:63704
+        http://127.0.0.1:63705
+    We will use the first one.
+
+10. Add the IP address to hosts (One time):
+    Open Notepad as Administrator and edit the hosts file (Under All file types)
+    For Windows: Navigate to .\System32\drivers\etc\hosts
+    Depending on the IP given during the last step add this line to the bottom:
+        127.0.0.1 egt307.local
+    Save the notepad and close it
+
+11. Go back to Powershell and run ipconfig /flushdns in another window
+
+12. Now you can freely access the system:
+    http://egt.local:63704     #Change port accordingly
+
+13. Once finish, stop Minikube:
+    minikube stop
+
+Additional Info to verify components:
+
+To check API Health in browser:
+    http://egt.local:<port>/api/health
+
+To check HPA in Powershell:
+    kubectl get hpa -n egt307
+
+To check metrics in Powershell:
+
+    kubectl top pods -n egt307
+
+        
+
 ## Description of each microservice and its purpose
 
 **1. Frontend Service (Streamlit)**

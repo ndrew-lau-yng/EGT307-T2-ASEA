@@ -20,5 +20,12 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 8000
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
           env:
-            # add DB or other environment variables here if needed
+            # Can add DB or other environment variables here if needed
