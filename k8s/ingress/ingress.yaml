@@ -8,8 +8,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: egt307.local
-    http:
+  - http:
       paths:
       - path: /
         pathType: Prefix
@@ -31,8 +30,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: egt307.local
-    http:
+  - http:
       paths:
       - path: /api(/|$)(.*)
         pathType: ImplementationSpecific

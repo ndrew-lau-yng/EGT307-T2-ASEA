@@ -7,7 +7,7 @@ Done by Andrew, Srishti, Elisha and Amirul.
 
 The project implements a predictive maintenance system for machine failure using a microservices architecture deployed on Kubernetes. The primary objective is to predict potential machine failures based on sensor data, enabling proactive maintenance and reducing downtime. The system comprises a frontend for user interaction, an API gateway for request orchestration, an inference service for machine learning predictions, and a PostgreSQL database for logging and persistence.
 
-## Instrucions to build, run, and deploy the system (Docker & Kubernetes)
+## Instructions to build, run, and deploy the system (Docker & Kubernetes)
 
 1. Download our project folder and unzip it.
 
@@ -42,17 +42,8 @@ The project implements a predictive maintenance system for machine failure using
         http://127.0.0.1:63705
     We will use the first one.
 
-10. Add the IP address to hosts (One time):
-    Open Notepad as Administrator and edit the hosts file (Under All file types)
-    For Windows: Navigate to .\System32\drivers\etc\hosts
-    Depending on the IP given during the last step add this line to the bottom:
-        127.0.0.1 egt307.local
-    Save the notepad and close it
-
-11. Go back to Powershell and run ipconfig /flushdns in another window
-
-12. Now you can freely access the system:
-    http://egt.local:63704     #Change port accordingly
+10. Now you can freely access the system by ctrl+click or copying the address to a browser:
+    http://127.0.0.1:63704     #Change port accordingly
 
 13. Once finish, stop Minikube:
     minikube stop
@@ -60,7 +51,7 @@ The project implements a predictive maintenance system for machine failure using
 Additional Info to verify components:
 
 To check API Health in browser:
-    http://egt.local:<port>/api/health
+    http://<IP>:<port>/api/health
 
 To check HPA in Powershell:
     kubectl get hpa -n egt307
@@ -112,4 +103,15 @@ https://www.kaggle.com/competitions/playground-series-s3e17/data
 |**OSF**| Target | Integer | - |
 |**RNF**| Target | Integer | - |
 
+## Reference for the ML Model
+
+The creation of the trained model was done by following the notebook below:
+
+Jeevika Sharma's ML-Powered Maintenance: Smarter & Proactive
+
+https://www.kaggle.com/code/jeevikasharma2003/ml-powered-maintenance-smarter-proactive
+
+
 ## Any known issues or limitations
+
+The main issue faced was the integration of the different microservices, during the Docker Containerization stage, the Kubernetes Implementation stage and the Ingress Addon stage. As everyone worked on their own services individually, it meant that each person configured their files using different ports, url links and requirements.
