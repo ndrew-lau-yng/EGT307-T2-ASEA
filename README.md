@@ -7,7 +7,22 @@ Done by Andrew, Srishti, Elisha and Amirul.
 
 The project implements a predictive maintenance system for machine failure using a microservices architecture deployed on Kubernetes. The primary objective is to predict potential machine failures based on sensor data, enabling proactive maintenance and reducing downtime. The system comprises a frontend for user interaction, an API gateway for request orchestration, an inference service for machine learning predictions, and a PostgreSQL database for logging and persistence.
 
-## Instructions to build, run, and deploy the system (Docker & Kubernetes)
+## Prerequisite to running the project locally (Only if necessary)
+
+Due to the large file size of the trained model, we could not commit it to Github, please train the model once if you want to test the program locally via VSCode.
+
+1. Create a virtual environment:
+    python -m venv venv
+    .\venv\Scripts\activate
+
+2. Under .\services\inference_service\app\ create a folder named "models"
+
+3. Download the requirements in "requirements-train.txt", by using "pip install -r requirements-train.txt"
+
+4. Run the training script under .\training\train.py using "python training\train.py"
+
+
+## Instructions to build, run, and deploy the system (Kubernetes)
 
 1. Download our project folder and unzip it.
 
@@ -45,8 +60,11 @@ The project implements a predictive maintenance system for machine failure using
 10. Now you can freely access the system by ctrl+click or copying the address to a browser:
     http://127.0.0.1:63704     #Change port accordingly
 
-13. Once finish, stop Minikube:
+11. Once finish, stop Minikube:
     minikube stop
+
+    To fully cleanup:
+        kubectl delete namespace egt307
 
 Additional Info to verify components:
 
@@ -55,12 +73,59 @@ To check API Health in browser:
 
 To check HPA in Powershell:
     kubectl get hpa -n egt307
+    kubectl describe hpa inference-hpa -n egt307
 
 To check metrics in Powershell:
-
     kubectl top pods -n egt307
 
-        
+To check API Health in Powershell:
+    curl -UseBasicParsing http://<IP>:<port>/api/health    
+
+To check Inference Service Health in Powershell:
+    kubectl port-forward -n egt307 svc/inference-service 18000:8000
+    curl -UseBasicParsing http://localhost:18000/health (Any local port can be used)
+
+To query Postgres for logging in Powershell:
+    kubectl exec -n egt307 -it postgres-0 -- psql -U egtdb -d egtdb -c "SELECT COUNT(*) FROM predictions;"
+    kubectl exec -n egt307 -it postgres-0 -- psql -U egtdb -d egtdb -c "SELECT COUNT(*) FROM request_log;"
+
+To check monitoring probes:
+    kubectl describe pod -n egt307 -l app=api-gateway
+
+## Instructions to build, run, and deploy the system (Docker, no Kubernetes functions)        
+
+1. Ensure that your Docker Desktop is running, with WSL 2 running
+
+2. Unzip the project into the machine
+
+3. Open Powershell and change directories to the project path:
+    cd ...\EGT307-T2-ASEA\
+
+4. Start the container:
+    docker compose up -d --build
+
+5. Access the full application on browser through this url:
+    http://localhost:8501
+
+6. To check database logging, use this command between each prediction and ensure count increases:
+    docker exec -it egt307-postgres psql -U egtdb -d egtdb -c "SELECT COUNT(*) FROM predictions;"
+    docker exec -it egt307-postgres psql -U egtdb -d egtdb -c "SELECT COUNT(*) FROM request_log;"
+
+7. To stop the application, run:
+    docker compose down
+
+Additional Info to verify components:
+
+After the container is running, test within Powershell by using a second tab:
+    Inference Health:
+        curl -UseBasicParsing http://localhost:8000/health
+    API Gateway Health:
+        curl -UseBasicParsing http://localhost:8001/health
+    API Prediction:
+        curl -UseBasicParsing -Method Post `
+        -Uri http://localhost:8001/predict `
+        -ContentType "application/json" `
+        -InFile data\samples\gateway_test.json
 
 ## Description of each microservice and its purpose
 

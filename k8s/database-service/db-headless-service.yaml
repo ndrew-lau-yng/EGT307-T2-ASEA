@@ -1,5 +1,3 @@
-# It allows other microservices to reach individual database replicas via direct DNS entries rather than a single load-balanced IP.
-
 apiVersion: v1           
 kind: Service                  
 metadata:

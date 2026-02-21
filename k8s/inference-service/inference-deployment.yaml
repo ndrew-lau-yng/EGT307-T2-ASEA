@@ -28,4 +28,3 @@ spec:
               cpu: "1000m"
               memory: "1Gi"
           env:
-            # Can add DB or other environment variables here if needed

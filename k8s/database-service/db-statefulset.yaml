@@ -1,7 +1,5 @@
-# Manages Postgres Pod; Not deployment as database is stateful
-
-apiVersion: apps/v1                             # Use apps/v1 API version for StatefulSet
-kind: StatefulSet                               # Define kind as StatefulSet
+apiVersion: apps/v1                            
+kind: StatefulSet                              
 metadata:
   name: postgres                            
 spec:
@@ -22,7 +20,7 @@ spec:
         - containerPort: 5432                   
         envFrom: 
         - secretRef:
-            name: db-secret                     # Inject DB credentials from Secret
+            name: db-secret                     
         volumeMounts:
         - name: postgres-data
           mountPath: /var/lib/postgresql/data
@@ -38,7 +36,7 @@ spec:
   - metadata:
       name: postgres-data                          # PVC name
     spec:
-      accessModes: ["ReadWriteOnce"]               # Storage can be mounted by one pod
+      accessModes: ["ReadWriteOnce"]           
       resources:
         requests:
           storage: 2Gi                             # Request 2GB storage
