@@ -52,7 +52,36 @@ Due to the large file size of the trained model, we could not commit it to Githu
             |_ model
                 |_ model.joblib
 
-## Instructions to build, run, and deploy the system (Kubernetes)
+## Instructions to build, run, and deploy the system (Kubernetes) (Manual/Auto)
+
+### Auto:
+
+1. Download our project folder and unzip it.
+
+2. Have Docker Desktop open with the engine running before continuing
+
+3. Open git bash terminal (not powershell) and navigate to the project folder directory
+
+        (.\EGT307-T2-ASEA)
+
+4. start run.sh
+
+        ./run.sh
+
+    
+5. Now you can freely access the system by ctrl+click or copying the address to a browser:
+            
+        http://127.0.0.1:63704     #Change port accordingly
+
+6. Once finish, stop Minikube:
+    
+        minikube stop
+
+   To fully cleanup:
+    
+        kubectl delete namespace egt307
+
+### Manual:
 
 1. Download our project folder and unzip it.
 
@@ -86,11 +115,10 @@ Due to the large file size of the trained model, we could not commit it to Githu
         kubectl apply -f .\k8s\ingress\ingress.yaml -n egt307
 
 
-8. Wait until all pods are stable and running 
-    ```
-    (status=running & ready=1/1 etc):
-    kubectl get pods -n egt307
-    ```
+8. Wait until all pods are stable and running (status=running & ready=1/1 etc):
+   
+        kubectl get pods -n egt307
+    
     
 9. Start the ingress access (*Use the first link address only*):
 
@@ -106,13 +134,14 @@ Due to the large file size of the trained model, we could not commit it to Githu
         http://127.0.0.1:63704     #Change port accordingly
 
 11. Once finish, stop Minikube:
-    minikube stop
+    
+        minikube stop
 
     To fully cleanup:
         
         kubectl delete namespace egt307
 
-Additional Info to verify components:
+## Additional Info to verify components:
 
 To check API Health in browser:
     
