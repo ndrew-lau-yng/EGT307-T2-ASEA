@@ -13,9 +13,9 @@ Due to the large file size of the trained model, we could not commit it to Githu
 
 Also, the project was built using Python Version 3.11. Please ensure your ensure your version is changed to be compatible with the project. Download version 3.11 online (python.org) and create a venv using Python 3.11, or the requirements will clash.
 
-1. After, changing python version, create a virtual environment:
+1. Create a virtual environment with version 3.11:
 
-        python -m venv venv
+        py -3.11 -m venv venv
         .\venv\Scripts\activate
 
 2. Under .\services\inference_service\app\ create a folder named "model"
@@ -97,7 +97,7 @@ Also, the project was built using Python Version 3.11. Please ensure your ensure
     ```
     minikube start
     ```
-5. Enable these addons:
+5. Enable these addons, and wait for the ingress components to run:
     ```
     minikube addons enable ingress
     minikube addons enable metrics-server
@@ -120,6 +120,8 @@ Also, the project was built using Python Version 3.11. Please ensure your ensure
 8. Wait until all pods are stable and running (status=running & ready=1/1 etc):
    
         kubectl get pods -n egt307
+        or
+        kubectl get pods -n egt307 -w (ctrl+c when finished)
     
     
 9. Start the ingress access (*Use the first link address only*):
