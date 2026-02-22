@@ -11,7 +11,9 @@ The project implements a predictive maintenance system for machine failure using
 
 Due to the large file size of the trained model, we could not commit it to Github, please train the model once if you want to test the program locally via VSCode.
 
-1. Create a virtual environment:
+Also, the project was built using Python Version 3.11. Please ensure your ensure your version is changed to be compatible with the project. Download version 3.11 online (python.org) and create a venv using Python 3.11, or the requirements will clash.
+
+1. After, changing python version, create a virtual environment:
 
         python -m venv venv
         .\venv\Scripts\activate
@@ -32,7 +34,7 @@ Due to the large file size of the trained model, we could not commit it to Githu
 
 3. Download the requirements in "requirements-train.txt", by using 
 
-        pip install -r requirements-train.txt
+        pip install -r training\requirements-train.txt
 
 4. Run the training script under .\training\train.py using 
 
