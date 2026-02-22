@@ -12,40 +12,45 @@ The project implements a predictive maintenance system for machine failure using
 Due to the large file size of the trained model, we could not commit it to Github, please train the model once if you want to test the program locally via VSCode.
 
 1. Create a virtual environment:
-    python -m venv venv
-    .\venv\Scripts\activate
+
+        python -m venv venv
+        .\venv\Scripts\activate
 
 2. Under .\services\inference_service\app\ create a folder named "model"
 
-    The folder structure for inference service should look like this:
-    services
-    |_ API_gateway_service
-    |_ frontend_service
-    |_ database_service
-    |_ inference_service
-        |_ app
-        |_ .dockerignore
-        |_ Dockerfile
-        |_ requirements.txt
-        |_ model
+        The folder structure for inference service should look like this:
+        services
+        |_ API_gateway_service
+        |_ frontend_service
+        |_ database_service
+        |_ inference_service
+            |_ app
+            |_ .dockerignore
+            |_ Dockerfile
+            |_ requirements.txt
+            |_ model
 
-3. Download the requirements in "requirements-train.txt", by using "pip install -r requirements-train.txt"
+3. Download the requirements in "requirements-train.txt", by using 
 
-4. Run the training script under .\training\train.py using "python training\train.py"
+        pip install -r requirements-train.txt
 
+4. Run the training script under .\training\train.py using 
+
+        "python training\train.py"
+    
     The final folder structure for inference service should look like this:
-    services
-    |_ API_gateway_service
-    |_ frontend_service
-    |_ database_service
-    |_ inference_service
-        |_ app
-        |_ .dockerignore
-        |_ Dockerfile
-        |_ requirements.txt
-        |_ model
-            |_ model.joblib
-
+    
+        services
+        |_ API_gateway_service
+        |_ frontend_service
+        |_ database_service
+        |_ inference_service
+            |_ app
+            |_ .dockerignore
+            |_ Dockerfile
+            |_ requirements.txt
+            |_ model
+                |_ model.joblib
 
 ## Instructions to build, run, and deploy the system (Kubernetes)
 
@@ -53,68 +58,91 @@ Due to the large file size of the trained model, we could not commit it to Githu
 
 2. Have Docker Desktop open with the engine running before continuing
 
-3. Open powershell and navigate to the project folder directory (.\EGT307-T2-ASEA)
-
-4. Start Minikube: 
+3. Open powershell and navigate to the project folder directory 
+    ```
+    (.\EGT307-T2-ASEA)
+    ```
+4. Start Minikube:
+    ```
     minikube start
-
+    ```
 5. Enable these addons:
+    ```
     minikube addons enable ingress
     minikube addons enable metrics-server
+    ```
 
 6. Create the namespace:
+    ```
     kubectl create namespace egt307
+    ```
 
 7. Apply the yaml files:
-    kubectl apply -f .\k8s\database-service\ -n egt307
-    kubectl apply -f .\k8s\inference-service\ -n egt307
-    kubectl apply -f .\k8s\api-gateway-service\ -n egt307
-    kubectl apply -f .\k8s\frontend-service\ -n egt307
-    kubectl apply -f .\k8s\ingress\ingress.yaml -n egt307
+    
+        kubectl apply -f .\k8s\database-service\ -n egt307
+        kubectl apply -f .\k8s\inference-service\ -n egt307
+        kubectl apply -f .\k8s\api-gateway-service\ -n egt307
+        kubectl apply -f .\k8s\frontend-service\ -n egt307
+        kubectl apply -f .\k8s\ingress\ingress.yaml -n egt307
 
-8. Wait until all pods are stable and running (status=running & ready=1/1 etc):
+
+8. Wait until all pods are stable and running 
+    ```
+    (status=running & ready=1/1 etc):
     kubectl get pods -n egt307
-
+    ```
+    
 9. Start the ingress access (*Use the first link address only*):
-    minikube service ingress-nginx-controller -n ingress-nginx --url
+
+        minikube service ingress-nginx-controller -n ingress-nginx --url
     Something like this should output:
+        
         http://127.0.0.1:63704
         http://127.0.0.1:63705
     We will use the first one.
 
 10. Now you can freely access the system by ctrl+click or copying the address to a browser:
-    http://127.0.0.1:63704     #Change port accordingly
+        
+        http://127.0.0.1:63704     #Change port accordingly
 
 11. Once finish, stop Minikube:
     minikube stop
 
     To fully cleanup:
+        
         kubectl delete namespace egt307
 
 Additional Info to verify components:
 
 To check API Health in browser:
+    
     http://<IP>:<port>/api/health
 
 To check HPA in Powershell:
+    
     kubectl get hpa -n egt307
     kubectl describe hpa inference-hpa -n egt307
 
 To check metrics in Powershell:
+    
     kubectl top pods -n egt307
 
 To check API Health in Powershell:
+    
     curl -UseBasicParsing http://<IP>:<port>/api/health    
 
 To check Inference Service Health in Powershell:
+    
     kubectl port-forward -n egt307 svc/inference-service 18000:8000
     curl -UseBasicParsing http://localhost:18000/health (Any local port can be used)
 
 To query Postgres for logging in Powershell:
+    
     kubectl exec -n egt307 -it postgres-0 -- psql -U egtdb -d egtdb -c "SELECT COUNT(*) FROM predictions;"
     kubectl exec -n egt307 -it postgres-0 -- psql -U egtdb -d egtdb -c "SELECT COUNT(*) FROM request_log;"
 
 To check monitoring probes:
+    
     kubectl describe pod -n egt307 -l app=api-gateway
 
 ## Instructions to build, run, and deploy the system (Docker, no Kubernetes functions)        
@@ -124,29 +152,39 @@ To check monitoring probes:
 2. Unzip the project into the machine
 
 3. Open Powershell and change directories to the project path:
-    cd ...\EGT307-T2-ASEA\
+    
+        cd ...\EGT307-T2-ASEA\
 
 4. Start the container:
-    docker compose up -d --build
+        
+        docker compose up -d --build
 
 5. Access the full application on browser through this url:
     http://localhost:8501
 
 6. To check database logging, use this command between each prediction and ensure count increases:
-    docker exec -it egt307-postgres psql -U egtdb -d egtdb -c "SELECT COUNT(*) FROM predictions;"
-    docker exec -it egt307-postgres psql -U egtdb -d egtdb -c "SELECT COUNT(*) FROM request_log;"
+
+        docker exec -it egt307-postgres psql -U egtdb -d egtdb -c "SELECT COUNT(*) FROM predictions;"
+        docker exec -it egt307-postgres psql -U egtdb -d egtdb -c "SELECT COUNT(*) FROM request_log;"
 
 7. To stop the application, run:
-    docker compose down
+
+        docker compose down
 
 Additional Info to verify components:
 
 After the container is running, test within Powershell by using a second tab:
-    Inference Health:
+
+- Inference Health:
+        
         curl -UseBasicParsing http://localhost:8000/health
-    API Gateway Health:
+    
+- API Gateway Health:
+
         curl -UseBasicParsing http://localhost:8001/health
-    API Prediction:
+
+- API Prediction:
+
         curl -UseBasicParsing -Method Post `
         -Uri http://localhost:8001/predict `
         -ContentType "application/json" `
