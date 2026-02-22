@@ -7,7 +7,7 @@ Done by Andrew, Srishti, Elisha and Amirul.
 
 The project implements a predictive maintenance system for machine failure using a microservices architecture deployed on Kubernetes. The primary objective is to predict potential machine failures based on sensor data, enabling proactive maintenance and reducing downtime. The system comprises a frontend for user interaction, an API gateway for request orchestration, an inference service for machine learning predictions, and a PostgreSQL database for logging and persistence.
 
-## Prerequisite to running the project locally (Only if necessary)
+## Prerequisite to running the project locally for Python Files and Docker (Only if necessary)
 
 Due to the large file size of the trained model, we could not commit it to Github, please train the model once if you want to test the program locally via VSCode.
 
@@ -15,11 +15,36 @@ Due to the large file size of the trained model, we could not commit it to Githu
     python -m venv venv
     .\venv\Scripts\activate
 
-2. Under .\services\inference_service\app\ create a folder named "models"
+2. Under .\services\inference_service\app\ create a folder named "model"
+
+    The folder structure for inference service should look like this:
+    services
+    |_ API_gateway_service
+    |_ frontend_service
+    |_ database_service
+    |_ inference_service
+        |_ app
+        |_ .dockerignore
+        |_ Dockerfile
+        |_ requirements.txt
+        |_ model
 
 3. Download the requirements in "requirements-train.txt", by using "pip install -r requirements-train.txt"
 
 4. Run the training script under .\training\train.py using "python training\train.py"
+
+    The final folder structure for inference service should look like this:
+    services
+    |_ API_gateway_service
+    |_ frontend_service
+    |_ database_service
+    |_ inference_service
+        |_ app
+        |_ .dockerignore
+        |_ Dockerfile
+        |_ requirements.txt
+        |_ model
+            |_ model.joblib
 
 
 ## Instructions to build, run, and deploy the system (Kubernetes)
@@ -180,3 +205,5 @@ https://www.kaggle.com/code/jeevikasharma2003/ml-powered-maintenance-smarter-pro
 ## Any known issues or limitations
 
 The main issue faced was the integration of the different microservices, during the Docker Containerization stage, the Kubernetes Implementation stage and the Ingress Addon stage. As everyone worked on their own services individually, it meant that each person configured their files using different ports, url links and requirements.
+
+Github has a maximum file size upload of 150 MB, which means that we were not able to upload our model.joblib file into the repository, hence users must create a "model" folder under the "inference_service" folder, then train the model locally. It will take less than 5 minutes for this whole process.
